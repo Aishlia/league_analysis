@@ -7,8 +7,24 @@ from bs4 import BeautifulSoup
 import re
 import html
 
-# class Summoner:
-#
+class Summoner:
+    def summoner_id(self):
+        url = 'https://na.op.gg/summoner/userName=' + self.name.replace(' ','+')
+        data = requests.get(url).text
+        soup = BeautifulSoup(data, 'html.parser')
+        mydivs = soup.find("div", {"class": "MostChampionContent"})
+        mydivs = mydivs.find("div", {"class": "MostChampionContent"})
+        summ_id = mydivs['data-summoner-id']
+        return summ_id
+
+    def __init__(self, summoner_name):
+        self.name = summoner_name
+        self.id = summoner_id(summoner_name)
+        self.url = 'https://na.op.gg/summoner/userName=' + summoner_name.replace(' ','+')
+
+mbo = Summoner("Rito Torchic")
+print(mbo)
+
 
 def summ_id(summ_name):
     url = 'https://na.op.gg/summoner/userName=' + summ_name.replace(' ','+')
@@ -61,8 +77,8 @@ def two_matches(summ_name):
 
     return matches
 
-def test():
-    target = 'Rito Torchic'
-    print(two_matches(target))
-
-test()
+# def test():
+#     target = 'Rito Torchic'
+#     print(two_matches(target))
+#
+# test()

@@ -21,8 +21,7 @@ win_loss = soup.findAll("div", {"class": "GameResult"})
 teams = [a.get_text() for a in soup.find_all("div", {"class": "Team"})]
 t1 = teams[0].split('\n')
 
-for i in range(len(t1)):
-    t1[i] = t1[i].strip()
+t1 = [x.strip(' ') for x in t1]
 
 t1 = list(filter(None, t1))
 

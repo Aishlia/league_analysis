@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 import re
 import html
 
+# class Summoner:
+#
+
 def summ_id(summ_name):
     url = 'https://na.op.gg/summoner/userName=' + summ_name.replace(' ','+')
     data = requests.get(url).text
@@ -16,27 +19,50 @@ def summ_id(summ_name):
     summ_id = mydivs['data-summoner-id']
     return summ_id
 
-url = 'https://na.op.gg/summoner/matches/ajax/averageAndList/startInfo=0&summonerId=47601640&type=soloranked'
+def two_matches(summ_name):
+    """
+    Pulls game info for a player's most recent two ranked matches.
 
-data = requests.get(url).json()
-soup = BeautifulSoup(data['html'], 'html.parser').decode('unicode_escape')
-soup = BeautifulSoup(soup, 'html.parser')
+    Return: List of most recent 2 matches
+    """
+    summoner_id = summ_id(summ_name)
+    url = 'https://na.op.gg/summoner/matches/ajax/averageAndList/startInfo=0&summonerId=' + str(summoner_id) + '&type=soloranked'
 
+    data = requests.get(url).json()
+    soup = BeautifulSoup(data['html'], 'html.parser').decode('unicode_escape')
+    soup = BeautifulSoup(soup, 'html.parser')
+    win_loss = soup.findAll("div", {"class": "GameResult"})
+    teams = [a.get_text() for a in soup.find_all("div", {"class": "Team"})]
 
-mydivs = soup.findAll("div", {"class": "Team"})
+    matches = []
 
-win_loss = soup.findAll("div", {"class": "GameResult"})
+    itr = 0
+    for m in range(2):  # Pull 2 matches
+        team_list = []
+        for t in range(2):  # Pull both teams for each math
+            team = teams[itr].split('\n')
+            for i in range(len(team)):
+                team[i] = team[i].strip()
 
-teams = [a.get_text() for a in soup.find_all("div", {"class": "Team"})]
-t1 = teams[0].split('\n')
+            team = list(filter(None, team))  # Get rid of empty indexes
 
-t1 = list(filter(None, t1))
+            for index in range(0,len(team), 3):
+                champion = team[index]
+                summoner_name = team[index+2]
+                opgg_url = 'https://na.op.gg/summoner/userName=' + team[index+2].replace(' ','+')
+                summoner_id = summ_id(team[index+2])
 
+                new_entry = (champion, summoner_name, summoner_id, opgg_url)
 
-arr = []
-for foo in range(0,len(t1), 3):
-    new_entry = (t1[foo], t1[foo+2], 'https://na.op.gg/summoner/userName=' + t1[foo+2].replace(' ','+'))
-    arr.append(new_entry)
+                team_list.append(new_entry)
+            itr += 1
 
+        matches.append([team_list])
 
-print(arr)
+    return matches
+
+def test():
+    target = 'Rito Torchic'
+    print(two_matches(target))
+
+test()

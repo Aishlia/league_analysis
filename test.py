@@ -8,22 +8,31 @@ import re
 import html
 
 class Summoner:
-    def summoner_id(self):
+    def __init__(self, summoner_name):
+        self.name = summoner_name
+
+        self.id = None
+        self.url = None
+        self.rank = None
+        self.id_url_rank()
+
+    def __str__(self):
+        return (self.name, self.rank, self.id)
+
+    def id_url_rank(self):
         url = 'https://na.op.gg/summoner/userName=' + self.name.replace(' ','+')
         data = requests.get(url).text
         soup = BeautifulSoup(data, 'html.parser')
-        mydivs = soup.find("div", {"class": "MostChampionContent"})
-        mydivs = mydivs.find("div", {"class": "MostChampionContent"})
-        summ_id = mydivs['data-summoner-id']
-        return summ_id
+        mydiv = soup.find("div", {"class": "MostChampionContent"})
+        child_div = mydiv.find("div", {"class": "MostChampionContent"})
+        summ_id = child_div['data-summoner-id']
 
-    def __init__(self, summoner_name):
-        self.name = summoner_name
-        self.id = summoner_id(summoner_name)
-        self.url = 'https://na.op.gg/summoner/userName=' + summoner_name.replace(' ','+')
+        self.url = url
+        self.id = summ_id
 
-mbo = Summoner("Rito Torchic")
-print(mbo)
+        rank = soup.find("div", {"class": "TierRank"}).string
+
+        self.rank = rank
 
 
 def summ_id(summ_name):
@@ -54,8 +63,9 @@ def two_matches(summ_name):
 
     itr = 0
     for m in range(2):  # Pull 2 matches
-        team_list = []
+        match = []
         for t in range(2):  # Pull both teams for each math
+            team_list = []
             team = teams[itr].split('\n')
             for i in range(len(team)):
                 team[i] = team[i].strip()
@@ -65,20 +75,25 @@ def two_matches(summ_name):
             for index in range(0,len(team), 3):
                 champion = team[index]
                 summoner_name = team[index+2]
-                opgg_url = 'https://na.op.gg/summoner/userName=' + team[index+2].replace(' ','+')
-                summoner_id = summ_id(team[index+2])
+                summoner = Summoner(summoner_name)
 
-                new_entry = (champion, summoner_name, summoner_id, opgg_url)
+                new_entry = (champion, summoner)
 
                 team_list.append(new_entry)
+            match.append([team_list])
             itr += 1
 
-        matches.append([team_list])
+        matches.append([match])
 
     return matches
 
-# def test():
-#     target = 'Rito Torchic'
-#     print(two_matches(target))
-#
-# test()
+def test():
+    target = 'Rito Torchic'
+    matches = two_matches(target)
+    for i in matches:
+        print("MATCH")
+        for j in i:
+            print("TEAM")
+            print(j)
+
+test()

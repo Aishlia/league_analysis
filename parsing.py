@@ -13,7 +13,7 @@ class Summoner:
         self.id_url_rank()
 
     def __str__(self):
-        output = self.name + " " + self.rank + " " + self.id
+        output = f"{self.name} {self.rank} {self.id}"
         return output
 
     def id_url_rank(self):
@@ -40,7 +40,8 @@ class Player:
         self.champion = champion
 
     def __str__(self):
-        output = self.champion + " " + str(self.summoner)  # TODO: This isn't working when line 55 tries to print(i)
+        output = f"{self.champion} {self.summoner}"  # TODO: This isn't working when line 55 tries to print(i)
+        return output
 
 class Match:
     def __init__(self):
@@ -52,7 +53,7 @@ class Match:
 
     def print_team(self, team_num):
         for i in self.teams[team_num]:
-            print(i.summoner)
+            print(i)
 
 def summ_id(summ_name):
     url = 'https://na.op.gg/summoner/userName=' + summ_name.replace(' ','+')
@@ -92,13 +93,13 @@ def get_team_data(summoner_name):
     teams = [a.get_text() for a in soup.find_all("div", {"class": "Team"})]
     return teams
 
-def two_matches(summ_name):
+def two_matches(summoner_name: str):
     """
     Pulls game info for a player's most recent two ranked matches.
 
     Return: List of most recent 2 matches
     """
-    teams = get_team_data(summ_name)
+    teams = get_team_data(summoner_name)
     matches = []
 
     itr = 0

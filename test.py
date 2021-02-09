@@ -9,11 +9,6 @@ import html
 
 url = 'https://na.op.gg/summoner/matches/ajax/averageAndList/startInfo=0&summonerId=47601640&type=soloranked'
 
-# r = requests.get(url).text
-# print(r)
-
-# url = 'https://na.op.gg/summoner/userName=rito+torchic'
-
 data = requests.get(url).json()
 soup = BeautifulSoup(data['html'], 'html.parser').decode('unicode_escape')
 soup = BeautifulSoup(soup, 'html.parser')
@@ -24,30 +19,17 @@ mydivs = soup.findAll("div", {"class": "Team"})
 win_loss = soup.findAll("div", {"class": "GameResult"})
 
 teams = [a.get_text() for a in soup.find_all("div", {"class": "Team"})]
+t1 = teams[0].split('\n')
 
-print(teams)
+for i in range(len(t1)):
+    t1[i] = t1[i].strip()
 
-for team in teams:
-    players = team.split('\n')
-    print(players)
+t1 = list(filter(None, t1))
 
-new_arr = 
+arr = []
+for foo in range(0,len(t1), 3):
+    new_entry = (t1[foo], t1[foo+2], 'https://na.op.gg/summoner/userName=' + t1[foo+2].replace(' ','+'))
+    arr.append(new_entry)
 
-a = list(filter(None, a))
 
-# a = teams[0].replace('\n','|')
-# a = a.split('|')
-# for player in a:
-#     teams[0].replace('|','')
-#
-# a = list(filter(None, a))
-#
-# arr = []
-#
-# for foo in range(0,len(a), 3):
-#     new_intry = (a[foo], a[foo+2], 'https://na.op.gg/summoner/userName=' + a[foo+2].replace(' ','+'))
-#     arr.append(new_intry)
-#
-#
-#
-# print(arr)
+print(arr)

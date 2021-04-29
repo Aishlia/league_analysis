@@ -3,7 +3,7 @@ import time
 
 def pull_data(summoner_name, cycle):
     # 100 Default per summoner
-    defaul_per_summoner = 3
+    defaul_per_summoner = 100
     random_summoner = find_match(summoner_name, defaul_per_summoner)
     print("---------- Random cummoner is " + random_summoner + ". ----------")
     ctr = 0

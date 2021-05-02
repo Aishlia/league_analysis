@@ -1,6 +1,7 @@
 from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import csv
+import time
 
 # golbal variables
 api_key = 'RGAPI-8a76ca9c-5e29-42ac-9198-634d0af8843e'
@@ -55,6 +56,7 @@ def find_match(summoner_name, itrs, my_region='na1'):
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             # writer.writeheader()
             if i in ranked_games:
+                time.sleep(1.2)
                 match_detail = watcher.match.by_id(my_region, match['gameId'])
                 game_rank = find_player_info(my_region, me)
                 matchID = match_detail['gameId']

@@ -1,6 +1,7 @@
 from riotwatcher import LolWatcher, ApiError
 import pandas as pd
 import numpy as np
+import time
 import csv
 
 # golbal variables
@@ -9,17 +10,26 @@ watcher = LolWatcher(api_key)
 
 # Find player rank
 def find_player_info(my_region, me):
-	my_ranked_stats = watcher.league.by_summoner(my_region, me['id'])
+	my_ranked_stats = None
+	tier = '-'
+	rank = '-'
+	lp = '-'
+	while(my_ranked_stats == None):
+		try:
+			my_ranked_stats = watcher.league.by_summoner(my_region, me['id'])
+		except:
+			print("Error occured @ stats.waiting")
+			time.sleep(20)
 	for row in my_ranked_stats:
 		if row['queueType'] == 'RANKED_SOLO_5x5':
-		  tier = row['tier']
-		  rank = row['rank']
-		  lp = row['leaguePoints']
-		  break
+			tier = row['tier']
+			rank = row['rank']
+			lp = row['leaguePoints']
+			break
 		else:
-		  tier = '-'
-		  rank = '-'
-		  lp = '-'
+			tier = '-'
+			rank = '-'
+			lp = '-'
 
 	ret = {'tier': tier,
 		 'rank': rank,
@@ -28,9 +38,21 @@ def find_player_info(my_region, me):
 
 # Find most recent match history
 def find_match(summoner_name, itrs, my_region='na1'):
-	me = watcher.summoner.by_name(my_region, summoner_name)
+	me = None
+	while(me == None):
+		try:
+			me = watcher.summoner.by_name(my_region, summoner_name)
+		except:
+			print("Error occured @ match.waiting")
+			time.sleep(20)
 
-	my_matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
+	my_matches = None
+	while(my_matches == None):
+		try:
+			my_matches = watcher.match.matchlist_by_account(my_region, me['accountId'])
+		except:
+			print("Error occured @ match2.waiting")
+			time.sleep(20)
 
 	ranked_games = []
 
@@ -50,15 +72,25 @@ def find_match(summoner_name, itrs, my_region='na1'):
 	ranked_games[:itrs]
 	#participants = []
 	games = []
-  
+	count = 0
 	for i, match in enumerate(my_matches['matches']):
 		with open('data.csv', 'a', newline='') as csvfile:
-			#fieldnames = ['champion', 'win', 'playerID', 'summonerName', 'tier', 'rank', 'matchID']
 			fieldnames = ['tier', 'rank', 'win', 'champion1', 'champion2', 'champion3', 'champion4', 'champion5', 'champion6' ,'champion7' ,'champion8' ,'champion9' ,'champion10', 'matchID']
 			writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-			#writer.writeheader()
+
 			if i in ranked_games:
-				match_detail = watcher.match.by_id(my_region, match['gameId'])
+				time.sleep(1.5)
+				match_detail = None
+				errcount = 0
+				while(match_detail == None):
+					try:
+						match_detail = watcher.match.by_id(my_region, match['gameId'])
+					except:
+						print("Error occured @ game.waiting")
+						time.sleep(20)
+						errcount += 1
+						if errcount == 2:
+							continue
 				game_rank = find_player_info(my_region, me)
 				matchID = match_detail['gameId']
 				game_data={}
@@ -78,38 +110,13 @@ def find_match(summoner_name, itrs, my_region='na1'):
 					if(usernames[num] == summoner_name):
 						num += 1
 					random_summoner = usernames[num]
-					found = True
+					try:
+						watcher.summoner.by_name('na1', random_summoner)
+						if(count!=0):
+							found = True
+					except:
+						print('Invalid summoner found. looking for other summoner')
 				writer.writerow(game_data)
 				games.append(game_data)
-				'''ctr = 0
-
-				for data in match_detail['participants']:
-					participants_row = {}
-					participants_row['champion'] = data['championId']
-					participants_row['win'] = data['stats']['win']
-					participants_row['playerID'] = match_detail['participantIdentities'][ctr]['player']['accountId']
-					participants_row['summonerName'] = match_detail['participantIdentities'][ctr]['player']['summonerName']
-					participants_row['tier'] = game_rank['tier']
-					participants_row['rank'] = game_rank['rank']
-					# player = watcher.summoner.by_name(my_region, participants_row['summonerName'])
-					# player_rank = find_player_info('na1', player)
-					# participants_row['tier'] = player_rank['tier']
-					# participants_row['rank'] = player_rank['rank']
-					# participants_row['lp'] = player_rank['lp']
-					participants_row['matchID'] = matchID
-					#participants.append(participants_row)
-					writer.writerow(participants_row)
-					if ctr == 0 and participants_row['summonerName'] != summoner_name and found == False:
-						random_summoner += participants_row['summonerName']
-						found = True
-
-					ctr += 1'''
+				count += 1
 	return random_summoner
-
-  #df = pd.DataFrame(participants)
-  #pd.set_option("display.max_rows", None, "display.max_columns", None)
-  #print(df)
-
-my_region = 'na1'  # Always na1 for north america 1 servers
-test_summoner = 'rito torchic'
-a = find_match(test_summoner, 3)

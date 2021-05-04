@@ -17,5 +17,5 @@ def pull_data(summoner_name, cycle):
         time.sleep(3)
 
 
-test_summoner = 'Coolpersonguyman'
+test_summoner = 'schick'
 pull_data(test_summoner, 1000)

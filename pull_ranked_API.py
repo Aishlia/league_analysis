@@ -5,7 +5,7 @@ import time
 import csv
 
 # golbal variables
-api_key = 'RGAPI-8a76ca9c-5e29-42ac-9198-634d0af8843e'
+api_key = 'RGAPI-ade3ec19-b550-44a9-af2f-2f070bf2c343'
 watcher = LolWatcher(api_key)
 
 # Find player rank
@@ -38,6 +38,7 @@ def find_player_info(my_region, me):
 
 # Find most recent match history
 def find_match(summoner_name, itrs, my_region='na1'):
+	num_games = 0
 	me = None
 	while(me == None):
 		try:
@@ -74,7 +75,7 @@ def find_match(summoner_name, itrs, my_region='na1'):
 	games = []
 	count = 0
 	for i, match in enumerate(my_matches['matches']):
-		with open('data.csv', 'a', newline='') as csvfile:
+		with open('jdata.csv', 'a', newline='') as csvfile:
 			fieldnames = ['tier', 'rank', 'win', 'champion1', 'champion2', 'champion3', 'champion4', 'champion5', 'champion6' ,'champion7' ,'champion8' ,'champion9' ,'champion10', 'matchID']
 			writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -117,6 +118,7 @@ def find_match(summoner_name, itrs, my_region='na1'):
 					except:
 						print('Invalid summoner found. looking for other summoner')
 				writer.writerow(game_data)
+				num_games += 1
 				games.append(game_data)
 				count += 1
-	return random_summoner
+	return random_summoner, num_games

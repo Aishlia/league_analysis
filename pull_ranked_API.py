@@ -5,7 +5,7 @@ import time
 import csv
 
 # golbal variables
-api_key = 'RGAPI-ade3ec19-b550-44a9-af2f-2f070bf2c343'
+api_key = 'RGAPI-38db3aee-36e7-4add-bd2b-623d80923aef'
 watcher = LolWatcher(api_key)
 
 # Find player rank
@@ -75,7 +75,7 @@ def find_match(summoner_name, itrs, my_region='na1'):
 	games = []
 	count = 0
 	for i, match in enumerate(my_matches['matches']):
-		with open('jdata.csv', 'a', newline='') as csvfile:
+		with open('jdata2.csv', 'a', newline='') as csvfile:
 			fieldnames = ['tier', 'rank', 'win', 'champion1', 'champion2', 'champion3', 'champion4', 'champion5', 'champion6' ,'champion7' ,'champion8' ,'champion9' ,'champion10', 'matchID']
 			writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
